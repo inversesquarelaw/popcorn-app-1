@@ -1,4 +1,5 @@
-App.getTorrentsCollection = function (options) {
+App.TorrentProviders = App.TorrentProviders || {};
+App.TorrentProviders.subapi = function (options) {
 
     var url = 'http://subapi.com/';
 
@@ -23,7 +24,7 @@ App.getTorrentsCollection = function (options) {
         url: url,
         model: App.Model.Movie,
         parse: function (data) {
-            
+
             var movies = [];
 
             data.movies.forEach(function (movie) {
@@ -59,7 +60,7 @@ App.getTorrentsCollection = function (options) {
                 }
 
                 if( (typeof movie.subtitles == 'undefined' || movie.subtitles.length == 0) && (typeof movie.videos == 'undefined' || movie.videos.length == 0) ){ return; }
-                
+
                 movies.push({
                     imdb:       movie.imdb_id,
                     title:      movie.title,

@@ -25,7 +25,7 @@ var
 
     // fs object
     fs = require('fs'),
-    
+
     // url object
     url = require('url'),
 
@@ -91,6 +91,7 @@ if (!isDebug) {
     menubar.append(developerItem);
     developerSubmenu.append(debugItem);
     win.menu = menubar;
+    gui.Window.get().showDevTools();
 
     // Developer Shortcuts
     document.addEventListener('keydown', function(event){
@@ -130,7 +131,7 @@ window.addEventListener("dragstart", preventDefault, false);
 // Show the disclaimer if the user hasn't accepted it yet.
 if( ! Settings.get('disclaimerAccepted') ) {
     $('.popcorn-disclaimer').removeClass('hidden');
-    
+
     $('.popcorn-disclaimer .btn.confirmation.continue').click(function(event){
         event.preventDefault();
         userTracking.event('App Disclaimer', 'Accepted', navigator.language.toLowerCase() ).send();

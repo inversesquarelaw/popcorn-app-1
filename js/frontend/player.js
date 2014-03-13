@@ -1,7 +1,7 @@
 // Opens a streaming torrent client
 
 var videoStreamer = null;
-var playTorrent = window.playTorrent = function (torrent, subs, movieModel, callback, progressCallback) {
+var playTorrent = window.playTorrent = function (torrent, subs, movieModel, callback, progressCallback, requestOptions) {
 
   videoStreamer ? $(document).trigger('videoExit') : null;
 
@@ -21,7 +21,8 @@ var playTorrent = window.playTorrent = function (torrent, subs, movieModel, call
     path: tmpFile,
     //port: 554,
     buffer: (1.5 * 1024 * 1024).toString(),
-    connections: numConnections
+    connections: numConnections,
+    request: requestOptions
   }, function (err, flix) {
     if (err) throw err;
 
@@ -147,10 +148,10 @@ window.spawnVideoPlayer = function (url, subs, movieModel) {
     // Init video.
     var video = window.videoPlaying = videojs('video_player', { plugins: { biggerSubtitle : {}, smallerSubtitle : {}, customSubtitles: {} }});
 
-    
+
     userTracking.pageview('/movies/watch/'+movieModel.get('slug'), movieModel.get('niceTitle') ).send();
 
-    
+
     // Enter full-screen
     $('.vjs-fullscreen-control').on('click', function () {
       if(win.isFullscreen) {
@@ -166,7 +167,7 @@ window.spawnVideoPlayer = function (url, subs, movieModel) {
 
     // Exit full-screen
     $(document).on('keydown', function (e) {
-      if (e.keyCode == 27) { 
+      if (e.keyCode == 27) {
         if(win.isFullscreen) {
           win.leaveFullscreen();
           userTracking.event('Video Size', 'Normal', movieModel.get('niceTitle') ).send();
@@ -175,16 +176,16 @@ window.spawnVideoPlayer = function (url, subs, movieModel) {
       }
     });
 
-    
+
     tracks = video.textTracks();
     for( var i in tracks ) {
       tracks[i].on('loaded', function(){
         // Trigger a resize to get the subtitles position right
-        $(window).trigger('resize'); 
+        $(window).trigger('resize');
         userTracking.event('Video Subtitles', 'Select '+ this.language_, movieModel.get('niceTitle') ).send();
       });
     }
-    
+
 
     var getTimeLabel = function() {
       // Give the time in 1 minute increments up to 5min, from then on report every 5m up to half an hour, and then in 15' increments
@@ -196,23 +197,23 @@ window.spawnVideoPlayer = function (url, subs, movieModel) {
       } else {
         timeLabel = Math.round(video.currentTime()/60/15)*15+'min';
       }
-      
+
       return timeLabel;
     };
-    
+
     // Report the movie playback status once every 10 minutes
     var statusReportInterval = setInterval(function(){
-      
+
       if( typeof video == 'undefined' || video == null ){ clearInterval(statusReportInterval); return; }
-      
+
       userTracking.event('Video Playing', movieModel.get('niceTitle'), getTimeLabel(), Math.round(video.currentTime()/60) ).send();
-      
+
     }, 1000*60*10);
-    
+
 
     // Close player
     $('#video_player_close').on('click', function () {
-      
+
       // Determine if the user quit because he watched the entire movie
       // Give 15 minutes or 15% of the movie for credits (everyone quits there)
       if( video.duration() > 0 && video.currentTime() >= Math.min(video.duration() * 0.85, video.duration() - 15*60) ) {
@@ -221,33 +222,33 @@ window.spawnVideoPlayer = function (url, subs, movieModel) {
       else {
         userTracking.event('Video Quit', movieModel.get('niceTitle'), getTimeLabel(), Math.round(video.currentTime()/60) ).send();
       }
-      
+
       // Clear the status report interval so it doesn't leak
       clearInterval(statusReportInterval);
-      
-      
+
+
       win.leaveFullscreen();
       $('#video-container').hide();
       video.dispose();
       $('body').removeClass();
       $(document).trigger('videoExit');
-      
+
     });
 
-    
+
     // Todo: delay these tracking events so we don't send two on double click
     video.player().on('pause', function () {
-    
+
       //userTracking.event('Video Control', 'Pause Button', getTimeLabel(), Math.round(video.currentTime()/60) ).send();
     });
-    
-    video.player().on('play', function () { 
+
+    video.player().on('play', function () {
       // Trigger a resize so the subtitles are adjusted
-      $(window).trigger('resize'); 
-      
+      $(window).trigger('resize');
+
       //userTracking.event('Video Control', 'Play Button', getTimeLabel(), Math.round(video.currentTime()/60) ).send();
     });
-    
+
     // There was an issue with the video
     video.player().on('error', function (error) {
       console.log(error);
@@ -269,7 +270,7 @@ jQuery(function ($) {
 
     $('#video-container').css('font-size', font_size+'px');
 
-    // And adjust the subtitle position so they always match the bottom of the video 
+    // And adjust the subtitle position so they always match the bottom of the video
     var $video = $('#video-container video');
     var $subs = $('#video-container .vjs-text-track-display');
 
