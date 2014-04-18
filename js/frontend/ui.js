@@ -17,7 +17,7 @@ App.loader = function (hasToShow, copy) {
   if( ! hasToShow ) {
     window.initialLoading = false;
 
-    // Wait a second before removing the progressbar clas
+    // Wait a second before removing the progressbar class
     setTimeout(function(){
       $el.removeClass('withProgressBar').removeClass('cancellable');
       $el.find('.progress').css('width', 0.0+'%');
@@ -34,7 +34,6 @@ App.loader(true, i18n.__('loading'));
 // Handles general UI buttons, like maximization, etc
 
 jQuery(function ($) {
-  App.settingsPage = new App.View.Settings();
 
   // Maximize, minimize
   $('.btn-os.max').on('click', function () {
@@ -63,14 +62,6 @@ jQuery(function ($) {
     $('.btn-os.fullscreen').toggleClass('active');
   });
 
-  $('.btn-os.settings').on('click', function () {
-    if( App.sidebar.isVisible() ) {
-      App.sidebar.hide();
-    }
-    if( !App.settingsPage.isVisible() ) {
-      App.settingsPage.show();
-    }
-  });
 
   // The app loading close button
   $('.popcorn-load .btn-close').click(function(event){
@@ -104,10 +95,11 @@ jQuery(function ($) {
 
 
   // Add route callback to router
-  App.Router.on('route', function () {
+  App.Router.on('route', function (something, data) {
     // Ensure sidebar is hidden
+    if(data[0] === null || data[1] === null)
+      App.loader(true, i18n.__('loading'));
     App.sidebar.hide();
-    App.settingsPage.hide();
   });
 
 
@@ -189,7 +181,7 @@ jQuery(function ($) {
   document.addEventListener('mousewheel', function(event){
     // Get video player
     var videoPlayer = $("#video_player");
-    if (videoPlayer.length === 0)
+    if (videoPlayer.length === 0 || $(event.target).parents(".vjs-subtitles-button").length)
       return;
     videoPlayer = videoPlayer[0].player;
     // Get current volume
