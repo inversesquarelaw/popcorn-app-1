@@ -6,9 +6,10 @@ var playTorrent = window.playTorrent = function (torrent, subs, movieModel, call
   videoStreamer ? $(document).trigger('videoExit') : null;
 
   // Create a unique file to cache the video (with a microtimestamp) to prevent read conflicts
+  var tmpFolder = path.join(os.tmpDir(), 'Popcorn-Time')
   var tmpFilename = ( torrent.toLowerCase().split('/').pop().split('.torrent').shift() ).slice(0,100);
   tmpFilename = tmpFilename.replace(/([^a-zA-Z0-9-_])/g, '_') + '.mp4';
-  var tmpFile = path.join(App.settings.cacheLocation, tmpFilename);
+  var tmpFile = path.join(tmpFolder, tmpFilename);
 
   var numCores = (os.cpus().length > 0) ? os.cpus().length : 1;
   var numConnections = 100;
@@ -68,38 +69,36 @@ var playTorrent = window.playTorrent = function (torrent, subs, movieModel, call
         $("body").addClass("sidebar-open").removeClass("loading");
 
         // Stop processes
-        if(App.settings.autoClearCache) {
-          flix.clearCache();
-        }
+        flix.clearCache();
         flix.destroy();
         videoStreamer = null;
 
         // Unbind the event handler
         $(document).off('videoExit');
 
-        delete flix;
+        flix = null;
       });
     });
   });
 
 };
 
-
-// Supported Languages for Subtitles
-
-window.SubtitleLanguages = {
-  'spanish'   : 'Español',
-  'english'   : 'English',
-  'french'    : 'Français',
-  'turkish'   : 'Türkçe',
-  'romanian'  : 'Română',
-  'portuguese': 'Português',
-  'brazilian' : 'Português-Br',
-  'dutch'     : 'Nederlands',
-  'german'    : 'Deutsch',
-  'hungarian' : 'Magyar',
-  'finnish'   : 'Suomi',
-  'bulgarian' : 'Български'};
+function videoError(e) {
+  // video playback failed - show a message saying why
+  // TODO: localize
+  switch (e.code) {
+    case e.MEDIA_ERR_ABORTED:
+      return 'The video playback was aborted.';
+    case e.MEDIA_ERR_NETWORK:
+      return 'A network error caused the video download to fail part-way.';
+    case e.MEDIA_ERR_DECODE:
+      return 'The video playback was aborted due to a corruption problem or because the video used features your browser did not support.';
+    case e.MEDIA_ERR_SRC_NOT_SUPPORTED:
+      return 'The video format is not supported.';
+    default:
+      return 'An unknown error occurred.';
+   }
+}
 
 
 // Handles the opening of the video player
@@ -109,10 +108,10 @@ window.spawnVideoPlayer = function (url, subs, movieModel) {
     // Sort sub according lang translation
     var subArray = [];
     for (var lang in subs) {
-        if( typeof SubtitleLanguages[lang] == 'undefined' ){ continue; }
+        if( !App.Localization.languages[lang].subtitle ){ continue; }
         subArray.push({
             'language': lang,
-            'languageName': SubtitleLanguages[lang],
+            'languageName': App.Localization.languages[lang].display,
             'sub': subs[lang]
         });
     }
@@ -150,6 +149,10 @@ window.spawnVideoPlayer = function (url, subs, movieModel) {
 
     // Init video.
     var video = window.videoPlaying = videojs('video_player', { plugins: { biggerSubtitle : {}, smallerSubtitle : {}, customSubtitles: {} }});
+
+    if(movieModel.has('resumetime')) {
+      video.currentTime(movieModel.get('resumetime'));
+    }
 
     // Enter full-screen
     $('.vjs-fullscreen-control').on('click', function () {
@@ -200,11 +203,12 @@ window.spawnVideoPlayer = function (url, subs, movieModel) {
     // Close player
     $('#video_player_close').on('click', function () {
       win.leaveFullscreen();
+      if(video.duration() - video.currentTime() > 300) // 5 mins
+        movieModel.set('resumetime', video.currentTime());
       $('#video-container').hide();
       video.dispose();
       $('body').removeClass();
       $(document).trigger('videoExit');
-
     });
 
 
@@ -220,7 +224,8 @@ window.spawnVideoPlayer = function (url, subs, movieModel) {
 
     // There was an issue with the video
     video.player().on('error', function (error) {
-      console.log(error);
+      // TODO: what about some more elegant error tracking
+      alert('Error: ' + videoError(document.getElementById('video_player').player.error()));
     });
 
     App.loader(false);
