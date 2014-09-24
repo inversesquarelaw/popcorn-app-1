@@ -36,7 +36,7 @@ Please follow the [contributions guidelines](https://github.com/popcorn-org/popc
 
 It is recommended to join us on IRC at `#popcorntime` on freenode ([web access](http://webchat.freenode.net/?channels=popcorntime)), most active developers hang in there. You can ask `isra17` for high priority task.
 
-## Any problem ?
+## Any problem?
 
 ### Error about missing libudev.so.0
 Search for libudev.so.0 on your distribution. Most of the time it can be easily fixed by creating a symbolic link from libudev.so to libudev.so.0
