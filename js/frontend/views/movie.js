@@ -3,11 +3,11 @@ App.View.MovieListItem = Marionette.ItemView.extend({
     className: 'movie',
     model: App.Model.Movie,
     id: function() {
-        return 'movie-'+this.model.get('imdb');
+        return 'movie-'+this.model.get('imdb')
     },
 
     events: {
-        'click a': 'select',
+        'click a': 'select'
     },
 
     initialize: function () {
@@ -17,7 +17,7 @@ App.View.MovieListItem = Marionette.ItemView.extend({
     template: _.template('<a href="javascript:;">'+
             '<i class="fa fa-eye fa-3"></i>'+
             '<span class="cover"></span>'+
-            '<strong><%- title %></strong>'+
+            '<strong><%= title %></strong>'+
             '<small><%- year %></small>'+
         '</a>'),
 
@@ -37,6 +37,7 @@ App.View.MovieListItem = Marionette.ItemView.extend({
         } else {
             this.$el.parent().find('.active').removeClass('active');
             this.$el.addClass('active');
+            console.logger.info('Loading model %O', this.model);
             App.sidebar.load(this.model);
         }
     }
