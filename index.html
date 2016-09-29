@@ -21,12 +21,24 @@
 
         <nav class="btn-set fs-<%= process.platform %>">
           <button class="btn-os fullscreen"></button>
-          <button class="btn-os settings"></button>
         </nav>
         <h1>Popcorn Time</h1>
     </script>
 
     <div id="notification"></div>
+
+    <div id="changelog-container"></div>
+
+    <script id="changelog-tpl" type="text/x-template">
+        <a class="btn-close"><img src="/images/close.svg" width="50" /></a>
+        <h1><%= title %></h1>
+        <h3><%= description %></h3>
+        <ul>
+        <% for(var i = 0; i < changeLog.length; i++) { %>
+          <li><%= changeLog[i] %></li>
+        <% } %>
+        </ul>
+    </script>
 
     <div id="catalog-select">
       <div class="search">
@@ -41,29 +53,8 @@
     </div>
 
     <section class="container">
-      <section id="settings" class="hidden"></section>
       <sidebar class="hidden"></sidebar>
     </section>
-
-    <script id="settings-tpl" type="text/x-template">
-      <div class="closer"><img src="/images/close.svg" width="50"></div>
-      <form id="settings-form">
-        <h1><%= i18n.__('Settings') %></h1>
-        <h2><%= i18n.__('Cache')%></h2>
-        <div class="option">
-          <label for="settings-cacheLocation-browse"><%= i18n.__('Cache location')%>:</label>
-          <a id="settings-cacheLocation-browse" class="small-button"><%= i18n.__('Browse...') %></a>
-          <input id="settings-cacheLocation-input" name="cacheLocation" type="file" nwdirectory not_empty />
-          <span id="settings-cacheLocation-value"><%= cacheLocation %></span>
-        </div>
-        <div class="option">
-          <input type="checkbox" name="autoClearCache" id="settings-autoclearcache" <%=autoClearCache?'checked="checked"':''%>></input>
-          <label for="settings-autoclearcache"><%= i18n.__('Auto clear cache')%></label>
-        </div>
-
-        <div><a class="save medium-button"><%= i18n.__('Save') %></a></div>
-      </form>
-    </script>
 
     <script id="sidebar-tpl" type="text/x-template">
       <div class="play">
@@ -107,7 +98,9 @@
                   <%= year %>
                 </li>
                 <li>
-                  <% if (this.model.get('runtime')) { %>
+                  <% if(this.model.has('resumetime')) { %>
+                    <span class="duration"><%= runtime - (resumetime/60|0) %>m left</span>
+                  <% } else if (this.model.get('runtime')) { %>
                     <span class="duration"><%= runtime %> <%= i18n.__('durationUnit') %></span>
                   <% } %>
                 </li>
@@ -134,21 +127,21 @@
 
             <p><%= synopsis %></p>
 
-            <% if ( ! _.isEmpty(subtitles) ) { %>
             <div class="subtitles-list">
+            <% if ( ! _.isEmpty(subtitles) ) { %>
               <h4><%= i18n.__('subtitledIn') %></h4>
 
               <ul>
                 <% if (typeof subtitles !== 'undefined') { %>
                   <li>
                     <% for (var i = 0, keys = _.keys(subtitles), l = keys.length; i < l; ++i) { %>
-                      <span class="flag flag-<%= keys[i] %>" title="<%= i18n.__(keys[i]) %>"></span>
+                      <span class="flag flag-<%= keys[i] %>" title="<%= App.Localization.languages[keys[i]].display %>"></span>
                     <% } %>
                   </li>
                 <% } %>
               </ul>
-            </div>
             <% } %>
+            </div>
 
             <% if (this.model.get('torrents')) { %>
               <a href="" class="p_tooltip play-button" disabled="disabled"><%= i18n.__('watchItNow') %></a>
@@ -190,14 +183,13 @@
 
     <!-- Settings Module and API Keys -->
     <script src="js/vendor/settings.js"></script>
-    <script src="js/vendor/config.js"></script>
 
     <!-- App Initialization -->
     <script src="js/app.js"></script>
+    <!-- <script src="js/updater.js"></script> -->
     <script src="js/language.js"></script>
 
     <!-- UI and UI-related Initialization -->
-    <script src="js/frontend/settings.js"></script>
     <script src="js/frontend/ui.js"></script>
     <script src="js/frontend/player.js"></script>
 
@@ -206,14 +198,11 @@
 
     <!-- Data Sources -->
     <script src="js/frontend/providers/cache.js"></script>
-    <script src="js/frontend/providers/themoviedb.js"></script>
-    <script src="js/frontend/providers/yifysubtitles.js"></script>
+    <script src="js/frontend/providers/ysubs.js"></script>
     <script src="js/frontend/scrapers/yts.js"></script>
     <script src="js/frontend/scrapers/scrapers.js"></script>
 
     <!-- Backbone Views and Controllers -->
-    <script src="js/frontend/models/movie.js"></script>
-    <script src="js/frontend/views/settings.js"></script>
     <script src="js/frontend/views/page.js"></script>
     <script src="js/frontend/views/listview.js"></script>
     <script src="js/frontend/views/movie.js"></script>
@@ -222,9 +211,6 @@
     <script src="js/frontend/controllers/search.js"></script>
     <script src="js/frontend/controllers/filter.js"></script>
     <script src="js/frontend/router.js"></script>
-
-    <!-- Remote Control -->
-    <script src="rc/index.js"></script>
 
     <!-- Other Dependencies -->
     <script src="js/vendor/video-js/video.dev.js"></script>

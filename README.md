@@ -1,72 +1,50 @@
-#Warning the repo was cleaned to shrink its size from over 100 Mo to less than 5 Mo. Please re-clone your project or use `git rebase`. Thanks
+#Popcorn time
 
-#Popcorn time [![Dependency Status](https://david-dm.org/isra17/popcorn-app.svg?theme=shields.io)](https://david-dm.org/isra17/popcorn-app)
-
-## Idea
+### Idea
 
 To allow any computer user to watch movies easily streaming from torrents, without any particular knowledge.
 
-![Demo Screenshot](http://i.imgur.com/6iNnWBO.png)
+![Demo Screenshot](http://popcorn-time.tv/images/how-ui.png)
 
-### Status
+### Donations
 
-Under development (RC1) for Mac OSX - Windows - Linux.
+Hosting and domains names are not free, any donation are more than helpful. Also, if you appreciate the work done, feel free to tip a beer to the developers!
+
+Bitcoin donation wallet: `1FbdjxxpHcamJYHU3afy9nX4C1P4dLSCJh`
 
 ### APIs
 
 **Currently used:**
-- ~~[RottenTomatoes](http://developer.rottentomatoes.com) for movies metadata.~~
-- ~~[PirateBay](http://thepiratebay.se/browse/207/0/7/0) Recent popular movies list.~~
 - [YIFY](http://yts.re/api) movie torrents API.
-- [OpenSubtitles](http://trac.opensubtitles.org/projects/opensubtitles/wiki/XMLRPC) for subtitles
-- [TheMovieDB](http://www.themoviedb.org/) for movies metadata.
+- [YifySubtitles](http://www.yifysubtitles.com) for subtitles
+- [Trakt.tv](https://trakt.tv/) for movies metadata.
 
-**In discussion:**
-- [SubtitleSeeker](http://www.api.subtitleseeker.com/About/Api-Search/) for subtitles.
+### Development
 
+See [Development's page](https://github.com/popcorn-org/popcorn-app/wiki/Development)
 
-## Building
+### How to contribute
 
-### Dependencies
+First, building, testing and reporting bug is highly appreciated. Please include console's output and reproduction step in your bug report.
 
-You will need nodejs and grunt:
+Right now we are doing a lot of [refactoring](https://github.com/popcorn-org/popcorn-app/issues/174) to clean the codebase so if you work on a new feature based on 0.2.x, it probably won't merge into 0.3.0. This is why we recommend you to hold all pull request other than bug fixes until we release 0.3.0 and stabilize the new codebase. From that point, we plan to add a lot of new features asked by the community and merge pull request.
 
-    $ npm install -g grunt-cli
+If you want to develop, you can look at the issues, especialy the bug and fix them.
+Here's a [list of feature](https://popcorntime.uservoice.com/forums/245422-general) requested by the community so far.
 
-And ruby with compass to build the stylesheets. Read [this](http://thesassway.com/beginner/getting-started-with-sass-and-compass) for more information.
+Please follow the [contributions guidelines](https://github.com/popcorn-org/popcorn-app/blob/master/CONTRIBUTING.md).
 
-### Build
-
-Install the node modules:
-
-    $ npm install
-
-Build with:
-
-    $ grunt build
-
-By default it will build for your current platform however you can control that
-by specifying a comma separated list of platforms in the `platforms` option to
-grunt:
-
-    $ grunt build --platforms=linux32,linux64,mac,win
-
-You can also build for all platforms with:
-
-    $ grunt build --platforms=all
+It is recommended to join us on IRC at `#popcorntime` on freenode ([web access](http://webchat.freenode.net/?channels=popcorntime)), most active developers hang in there. You can ask `isra17` for high priority task.
 
 ## Any problem?
 
+### Error about missing libudev.so.0
+Search for libudev.so.0 on your distribution. Most of the time it can be easily fixed by creating a symbolic link from libudev.so to libudev.so.0
 
-### Regarding Video, MP4 H264 Playback
-- Info: https://github.com/rogerwang/node-webkit/wiki/Support-mp3-and-h264-in-video-and-audio-tag
-- Needed to build a custom build of node-webkit that adds h264 support (or you can download ready-to-go builds from https://file.ac/s4Lt3Vo6rls/)
-- Alternatively, we can replace a .so and .dll file from the correspondent Chrome build to node-webkit and node-webkit.exe
+See: https://github.com/rogerwang/node-webkit/wiki/The-solution-of-lacking-libudev.so.0
 
+### Error "Gtk-WARNING **: cannot open display:"
+Try running `export DISPLAY=:0.0`
 
-## Development
-- Run `grunt build` at least once after running `npm install`. This should fix a dependancy.
-- Run `compass watch --css-dir css` in Terminal for CSS compiling and listen to future changes.
-- [How to build with SublimeText](https://github.com/rogerwang/node-webkit/wiki/Debugging-with-Sublime-Text-2-and-3)
-- Currently Gaze to watch all files and reload the app is disabled due to memory leaks and unstability.
-- Run node-webkit from the root directory with --debug to enable debugging mode like so ```node-webkit . --debug```
+### Error "The video format is not supported"
+See: https://github.com/rogerwang/node-webkit/wiki/Support-mp3-and-h264-in-video-and-audio-tag
